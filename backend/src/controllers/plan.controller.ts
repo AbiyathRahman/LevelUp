@@ -80,4 +80,24 @@ export const deletePlan = async (req: AuthRequest, res: Response) => {
         const message = err instanceof Error ? err.message : "Failed to delete plan";
         res.status(500).json({ message });
     }
-}
+};
+
+// Add a day in a workout plan
+export const addDay = async (req: AuthRequest, res: Response) => {
+    try {
+        const plan = await Plan.findOneAndUpdate(
+            { _id: req.params.id, user: req.user!._id },
+            { $push: { days: req.body } },
+            { new: true, runValidators: true }
+        );
+
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        res.status(200).json(plan);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to add day" });
+    }
+};
